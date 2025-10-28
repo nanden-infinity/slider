@@ -1,10 +1,22 @@
+import debounce from "./deboounce.js";
+
 export default class Slide {
   constructor(wrapper, slide) {
     this.slide = document.querySelector(slide);
     this.wrapper = document.querySelector(wrapper);
     this.distance = { finalPosition: 0, startX: 0, movement: 0 };
+    this.ActiveClass = "active";
   }
 
+  // Essa funcao  como bem o nome diz remove o item anterior que tiver o classe Active;
+  // O uso de funcao IFF e propositado comm o treinamento da logica
+  // Acontece que poderia ser chamado logo na instancia o ou fazendo mesmo o forEach ????
+  removeActive() {
+    (() =>
+      document
+        .querySelectorAll(`.${this.ActiveClass}`)
+        ?.forEach((cl) => cl.classList.remove(this.ActiveClass)))();
+  }
   transition(active) {
     this.slide.style.transition = active ? "transform .3s" : "";
   }
@@ -66,11 +78,6 @@ export default class Slide {
     this.wrapper.addEventListener("touchend", this.onEnd);
   }
 
-  bindEvents() {
-    this.onStart = this.onStart.bind(this);
-    this.onMove = this.onMove.bind(this);
-    this.onEnd = this.onEnd.bind(this);
-  }
   // SlidePosition
   slidePosition(slide) {
     const margin = this.wrapper.offsetWidth - slide.offsetWidth / 2;
@@ -85,6 +92,11 @@ export default class Slide {
         element,
       };
     });
+  }
+  // Essa funcao vai activar o classe que tiver activo do elemento movido do slider
+  changeActiveClass() {
+    this.removeActive();
+    this.slideArray[this.index.active].element.classList.add(this.ActiveClass);
   }
 
   // Essa funcao vai activar o slide anterior
@@ -112,12 +124,41 @@ export default class Slide {
     this.moveSlide(activeSlide.position);
     this.slideIndexNav(index);
     this.distance.finalPosition = activeSlide.position;
+    this.changeActiveClass();
+  }
+
+  // Fazendo a funcao onResize para manter os dados que  foram pegadas do objecto
+
+  onRezise() {
+    // Se essa funcao acontecer quero manter os valores armazenados no meu  objecto definido no constructor
+    // aqui volto a chamar a funcao changeSlide e ativar indice atual
+    // Feito todo isso vou colocar  isso dentro de um settimeout
+    setTimeout(() => {
+      this.slideCondig();
+      this.changeSlide(this.index.active);
+    }, 100);
+  }
+  // Agora aqui criando o evento do resize com window
+  addResize() {
+    window.addEventListener("resize", this.onRezise);
+  }
+  // Essa funcao esta fazendo o bind  das funcoes que foram passadas nela
+  bindEvents() {
+    this.onStart = this.onStart.bind(this);
+    this.onMove = this.onMove.bind(this);
+    this.onEnd = this.onEnd.bind(this);
+    this.onRezise = debounce(this.onRezise.bind(this),200);
   }
   init() {
     this.bindEvents();
     this.addSlideEvents();
     this.slideCondig();
+    this.changeSlide(0);
+    this.activePrevSlide();
     this.transition(true);
+
+    this.addResize();
     return this;
   }
+
 }
