@@ -5,17 +5,18 @@ export class Slide {
     this.slide = document.querySelector(slide);
     this.wrapper = document.querySelector(wrapper);
     this.distance = { finalPosition: 0, startX: 0, movement: 0 };
-    this.ActiveClass = "active";
+    this.activeClass = "active";
+    this.changeEvent = new Event("changeEvent");
   }
 
   // Essa funcao  como bem o nome diz remove o item anterior que tiver o classe Active;
-  // O uso de funcao IFF e propositado comm o treinamento da logica
+  // O uso de funcao IIFE e propositado comm o treinamento da logica
   // Acontece que poderia ser chamado logo na instancia o ou fazendo mesmo o forEach ????
   removeActive() {
     (() =>
       document
-        .querySelectorAll(`.${this.ActiveClass}`)
-        ?.forEach((cl) => cl.classList.remove(this.ActiveClass)))();
+        .querySelectorAll(`.${this.activeClass}`)
+        ?.forEach((element) => element.classList.remove(this.activeClass)))();
   }
   transition(active) {
     this.slide.style.transition = active ? "transform .3s" : "";
@@ -96,7 +97,8 @@ export class Slide {
   // Essa funcao vai activar o classe que tiver activo do elemento movido do slider
   changeActiveClass() {
     this.removeActive();
-    this.slideArray[this.index.active].element.classList.add(this.ActiveClass);
+    // this.createControl();
+    this.slideArray[this.index.active].element.classList.add(this.activeClass);
   }
 
   // Essa funcao vai activar o slide anterior
@@ -125,6 +127,7 @@ export class Slide {
     this.slideIndexNav(index);
     this.distance.finalPosition = activeSlide.position;
     this.changeActiveClass();
+    this.wrapper.dispatchEvent(this.changeEvent);
   }
 
   // Fazendo a funcao onResize para manter os dados que  foram pegadas do objecto
@@ -164,6 +167,10 @@ export class Slide {
 }
 
 export class SlideNav extends Slide {
+  constructor(wrapper, slide) {
+    super(wrapper, slide);
+    this.bindControl();
+  }
   addArrow(prev, next) {
     this.prevElement = document.querySelector(prev);
     this.nextElement = document.querySelector(next);
@@ -175,5 +182,57 @@ export class SlideNav extends Slide {
     this.prevElement.addEventListener("click", this.activePrevSlide);
 
     this.nextElement.addEventListener("click", this.activeNextSlide);
+  }
+  createControl() {
+    const control = document.createElement("ul");
+    control.dataset.control = "slide";
+    this.slideArray.forEach((item, index) => {
+      // Para Evitar o retorno de [htmlObjElement]
+      // Use outerHTML
+      const img = item.element.children[0].outerHTML;
+      // Primeira Opcao
+      // control.innerHTML += `<li><a href="slide${index + 1}">${
+      //   index + 1
+      // }</a></li>`;
+      // Segunda Opcao
+      const html = `<li><a href="slide${index + 1}">${index + 1}</a></li>`;
+      control.insertAdjacentHTML("beforeend", html);
+    });
+    this.wrapper.appendChild(control);
+
+    return control;
+  }
+
+  eventControl(item, index) {
+    // VIDEO
+    item.addEventListener("click", (event) => {
+      event.preventDefault();
+      this.changeSlide(index);
+    });
+    this.wrapper.addEventListener("changeEvent", this.activeControlItem);
+  }
+
+  activeControlItem() {
+    // Mais uma vez aqui trago a mesma funcao IIFE
+    // como uma forma de exemplificar mais uma vez, mostrando que poderia ser consistente esse code, mas prefiro mudar para forEach || document.querySelector(`[data-control] ${this.activeClass})?.classList.remove(this.activeClass`)
+    // FIM
+    this.controlArray.forEach((element) =>
+      element.classList.remove(this.activeClass)
+    );
+    this.controlArray[this.index.active].classList.add(this.activeClass);
+  }
+  addControl(customControl) {
+    this.control =
+      document.querySelector(customControl) || this.createControl();
+
+    this.controlArray = [...this.control.children];
+    // Quando o arg e igual com arg da funcao callbak nao precisa repassar a propia funcao vai entender este caso no forEach
+    // VIDEO
+    this.activeControlItem()
+    this.controlArray.forEach(this.eventControl);
+  }
+  bindControl() {
+    this.eventControl = this.eventControl.bind(this);
+    this.activeControlItem = this.activeControlItem.bind(this);
   }
 }

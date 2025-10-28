@@ -24,6 +24,7 @@ body {
 .slide-wrapper {
   display: flex;
   justify-content: center;
+  flex-direction: column;
   overflow: hidden;
   max-width: 800px;
   margin: 0 auto;
@@ -32,8 +33,9 @@ body {
 .slide {
   display: flex;
   /* width: 100%; */
- 
+
 }
+
 
 .slide:hover {
   will-change: transform;
@@ -55,11 +57,64 @@ li.active {
   opacity: 1;
   transform: scale(1);
   transition-delay: .2s;
-
+  box-shadow: 0 4px 8px rgba(44, 44, 44, 0.2);
 
   & img {
 
     border-radius: 4px;
 
   }
+}
+
+[data-control='slide'] {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+
+
+
+  /* PEND */
+  /* & li {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 44px;
+    width: 44px;
+    border-radius: 50%;
+    background: #fb4;
+    box-shadow: 0 4px 8px rgba(44, 44, 44, 0.2);
+    padding: 2px;
+    overflow: hidden;
+
+    & a {
+      display: block;
+      text-indent: -400px;
+
+      & img {
+        border-radius: 50%;
+      }
+    }
+  } */
+
+}
+
+[data-control='slide'] li {
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+[data-control='slide'] a {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fb4;
+  text-indent: -999px;
+  margin: 0 5px 5px;
+}
+
+[data-control='slide'] li.active a,
+[data-control='slide'] li a:hover {
+  background: #e54;
 }
