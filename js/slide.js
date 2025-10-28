@@ -5,6 +5,10 @@ export default class Slide {
     this.distance = { finalPosition: 0, startX: 0, movement: 0 };
   }
 
+  transition(active) {
+    this.slide.style.transition = active ? "transform .3s" : "";
+  }
+
   onStart(event) {
     let mouseType;
     if (event.type === "mousedown") {
@@ -17,6 +21,7 @@ export default class Slide {
       mouseType = "touchmove";
     }
     this.wrapper.addEventListener(mouseType, this.onMove);
+    this.transition(false);
   }
   moveSlide(distanceX) {
     this.distance.movePosition = distanceX;
@@ -28,7 +33,7 @@ export default class Slide {
     return this.distance.finalPosition - this.distance.movement;
   }
   onMove(event) {
-    // event.preventDefault();
+    event.preventDefault();
     const pointerPosition =
       event.type === "mousemove"
         ? event.clientX
@@ -40,8 +45,19 @@ export default class Slide {
   onEnd(event) {
     const moveType = event.type === "mouseup" ? "mousemove" : "touchmove";
     this.wrapper.removeEventListener(moveType, this.onMove);
-
     this.distance.finalPosition = this.distance.movePosition;
+    this.transition(true);
+    this.changeSlideOnEnd();
+  }
+  // Essa funcao  muda o slide  para o ponto centrar
+  changeSlideOnEnd() {
+    if (this.distance.movement > 120 && this.index.next !== undefined) {
+      this.activeNextSlide();
+    } else if (this.distance.movement < -120 && this.index.prev !== undefined) {
+      this.activePrevSlide();
+    } else {
+      this.changeSlide(this.index.active);
+    }
   }
   addSlideEvents() {
     this.wrapper.addEventListener("mousedown", this.onStart);
@@ -71,6 +87,15 @@ export default class Slide {
     });
   }
 
+  // Essa funcao vai activar o slide anterior
+  activePrevSlide() {
+    if (this.index.prev !== undefined) this.changeSlide(this.index.prev);
+  }
+  // Essa funcao vai activar o slide a seguir
+  activeNextSlide() {
+    if (this.index.next !== undefined) this.changeSlide(this.index.next);
+  }
+
   // Esse funcao encontra o slide do index da neve que a pessoa
   slideIndexNav(index) {
     const lastIndex = this.slideArray.length - 1;
@@ -92,6 +117,7 @@ export default class Slide {
     this.bindEvents();
     this.addSlideEvents();
     this.slideCondig();
+    this.transition(true);
     return this;
   }
 }
