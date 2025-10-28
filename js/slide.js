@@ -24,7 +24,6 @@ export default class Slide {
   }
   updatePosition(clientX) {
     clientX = Math.floor(clientX);
-    console.log(clientX);
     this.distance.movement = (this.distance.startX - clientX) * 1.6;
     return this.distance.finalPosition - this.distance.movement;
   }
@@ -56,9 +55,43 @@ export default class Slide {
     this.onMove = this.onMove.bind(this);
     this.onEnd = this.onEnd.bind(this);
   }
+  // SlidePosition
+  slidePosition(slide) {
+    const margin = this.wrapper.offsetWidth - slide.offsetWidth / 2;
+    return -(slide.offsetLeft - margin);
+  }
+  // Slide Config
+  slideCondig() {
+    this.slideArray = [...this.slide.children].map((element) => {
+      const position = this.slidePosition(element);
+      return {
+        position,
+        element,
+      };
+    });
+  }
 
+  // Esse funcao encontra o slide do index da neve que a pessoa
+  slideIndexNav(index) {
+    const lastIndex = this.slideArray.length - 1;
+    this.index = {
+      prev: index ? index - 1 : undefined,
+      active: index,
+      next: index === lastIndex ? undefined : index + 1,
+    };
+  }
+  // Evento que muda o index de acordo com o slide que fomos pasando
+
+  changeSlide(index) {
+    const activeSlide = this.slideArray[index];
+    this.moveSlide(activeSlide.position);
+    this.slideIndexNav(index);
+    this.distance.finalPosition = activeSlide.position;
+  }
   init() {
     this.bindEvents();
     this.addSlideEvents();
+    this.slideCondig();
+    return this;
   }
 }
