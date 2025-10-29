@@ -161,7 +161,7 @@ li.active {
   width: 40px;
   border-radius: 4px;
   color: white;
-  background: #fb4 url(/img/arrow.svg) center center no-repeat;
+  background: #fb4 url(../img/arrow.svg) center center no-repeat;
 }
 
 .arrow-nav button.prev {
